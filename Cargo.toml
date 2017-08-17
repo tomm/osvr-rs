@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Tom Morton <tomm@riseup.net>"]
 
 [dependencies]
-osvr-sys = { path = "../osvr-sys-rs" }
+osvr-sys = { git = "https://github.com/tomm/osvr-sys-rs.git" }
+#osvr-sys = { path = "../osvr-sys-rs" }
 gl = "0.6.3"
 sdl2 = "0.27"

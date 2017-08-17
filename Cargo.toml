@@ -1,0 +1,9 @@
+[package]
+name = "osvr"
+version = "0.1.0"
+authors = ["Tom Morton <tomm@riseup.net>"]
+
+[dependencies]
+osvr-sys = { path = "../osvr-sys-rs" }
+gl = "0.6.3"
+sdl2 = "0.27"

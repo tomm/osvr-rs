@@ -2,6 +2,9 @@
 name = "osvr"
 version = "0.1.0"
 authors = ["Tom Morton <tomm@riseup.net>"]
+license = "MIT"
+description = "OSVR-Core and OSVR-RenderManager bindings with safe API"
+repository = "https://github.com/tomm/osvr-rs.git"
 
 [dependencies]
 osvr-sys = { git = "https://github.com/tomm/osvr-sys-rs.git" }

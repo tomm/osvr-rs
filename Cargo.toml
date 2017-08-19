@@ -7,7 +7,7 @@ description = "OSVR-Core and OSVR-RenderManager bindings with safe API"
 repository = "https://github.com/tomm/osvr-rs.git"
 
 [dependencies]
-osvr-sys = { git = "https://github.com/tomm/osvr-sys-rs.git" }
 #osvr-sys = { path = "../osvr-sys-rs" }
+osvr-sys = "0.1.0"
 gl = "0.6.3"
 sdl2 = "0.27"

@@ -1,6 +1,6 @@
 use gl1x;
 
-static MATSPEC: [f32; 4] = [ 0.5, 0.5, 0.5, 0.0 ];
+//static MATSPEC: [f32; 4] = [ 0.5, 0.5, 0.5, 0.0 ];
 static RED_COL: [f32; 3] = [ 1.0, 0.0, 0.0 ];
 static GRN_COL: [f32; 3] = [ 0.0, 1.0, 0.0 ];
 static BLU_COL: [f32; 3] = [ 0.0, 0.0, 1.0 ];

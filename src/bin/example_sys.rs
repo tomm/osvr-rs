@@ -1,8 +1,9 @@
+// ignore bad naming. this is a straight port of the OSVR C-API example...
+#![allow(non_snake_case, non_camel_case_types, non_upper_case_globals)]
 extern crate osvr_sys;
 extern crate gl;
 extern crate sdl2;
 use std::ffi::CString;
-use std::ptr;
 use std::mem;
 use std::vec::Vec;
 pub mod common;
@@ -13,6 +14,7 @@ extern "C" fn myButtonCallback(userdata: *mut ::std::os::raw::c_void, timestamp:
 {
     unsafe {
         println!("Button state: {}", (*report).state);
+        println!("Time: {} s {} us", (*timestamp).seconds, (*timestamp).microseconds);
         // quit when buttons are pressed
         let quit = userdata as *mut bool;
         *quit = (*report).state != 0;

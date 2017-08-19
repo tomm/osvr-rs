@@ -76,8 +76,8 @@ impl RenderManager {
                 eprintln!("Could not create RenderManager");
                 None
             } else {
-                let mut openResults: osvr_sys::OSVR_OpenResultsOpenGL = std::mem::zeroed();
-                if 0 != osvr_sys::osvrRenderManagerOpenDisplayOpenGL(render_gl, &mut openResults) {
+                let mut open_results: osvr_sys::OSVR_OpenResultsOpenGL = std::mem::zeroed();
+                if 0 != osvr_sys::osvrRenderManagerOpenDisplayOpenGL(render_gl, &mut open_results) {
                     eprintln!("Could not open GL display");
                     None
                 } else {
@@ -103,39 +103,39 @@ impl RenderManager {
         unsafe {
             osvr_sys::osvrRenderManagerGetDefaultRenderParams(&mut self.render_params);
 
-            let mut renderInfoCollection: osvr_sys::OSVR_RenderInfoCollection = std::mem::zeroed();
-            if 0 != osvr_sys::osvrRenderManagerGetRenderInfoCollection(self.render, self.render_params, &mut renderInfoCollection) {
+            let mut render_info_collection: osvr_sys::OSVR_RenderInfoCollection = std::mem::zeroed();
+            if 0 != osvr_sys::osvrRenderManagerGetRenderInfoCollection(self.render, self.render_params, &mut render_info_collection) {
                 panic!("Could not get render info");
             }
 
-            let mut numRenderInfo: osvr_sys::OSVR_RenderInfoCount = 0 as usize;
-            osvr_sys::osvrRenderManagerGetNumRenderInfoInCollection(renderInfoCollection, &mut numRenderInfo);
+            let mut num_render_info: osvr_sys::OSVR_RenderInfoCount = 0 as usize;
+            osvr_sys::osvrRenderManagerGetNumRenderInfoInCollection(render_info_collection, &mut num_render_info);
 
             gl::GenFramebuffers(1, &mut self.frame_buffer);
             gl::BindFramebuffer(gl::FRAMEBUFFER, self.frame_buffer);
 
-            let mut registerBufferState: osvr_sys::OSVR_RenderManagerRegisterBufferState = std::mem::uninitialized();
-            if 0 != osvr_sys::osvrRenderManagerStartRegisterRenderBuffers(&mut registerBufferState) {
+            let mut register_buffer_state: osvr_sys::OSVR_RenderManagerRegisterBufferState = std::mem::uninitialized();
+            if 0 != osvr_sys::osvrRenderManagerStartRegisterRenderBuffers(&mut register_buffer_state) {
                 panic!("Could not start registering render buffers");
             }
 
-            for i in 0..numRenderInfo {
-                let mut renderInfo: osvr_sys::OSVR_RenderInfoOpenGL = std::mem::zeroed();
+            for i in 0..num_render_info {
+                let mut render_info: osvr_sys::OSVR_RenderInfoOpenGL = std::mem::zeroed();
 
-                if 0 != osvr_sys::osvrRenderManagerGetRenderInfoFromCollectionOpenGL(renderInfoCollection, i, &mut renderInfo) {
+                if 0 != osvr_sys::osvrRenderManagerGetRenderInfoFromCollectionOpenGL(render_info_collection, i, &mut render_info) {
                     panic!("Could not get render info {}", i);
                 }
 
-                let width: i32 = renderInfo.viewport.width as i32;
-                let height: i32 = renderInfo.viewport.height as i32;
+                let width: i32 = render_info.viewport.width as i32;
+                let height: i32 = render_info.viewport.height as i32;
 
-                let mut colorBufferName: osvr_sys::GLuint = 0;
-                if 0 != osvr_sys::osvrRenderManagerCreateColorBufferOpenGL(width, height, gl::RGBA, &mut colorBufferName) {
+                let mut color_buffer_name: osvr_sys::GLuint = 0;
+                if 0 != osvr_sys::osvrRenderManagerCreateColorBufferOpenGL(width, height, gl::RGBA, &mut color_buffer_name) {
                     panic!("Could not create color buffer.");
                 }
 
                 let mut rb: osvr_sys::OSVR_RenderBufferOpenGL = std::mem::zeroed();
-                rb.colorBufferName = colorBufferName;
+                rb.colorBufferName = color_buffer_name;
                 
                 self.color_buffers.push(rb);
 
@@ -146,12 +146,12 @@ impl RenderManager {
                 rb.depthStencilBufferName = depthrenderbuffer;
                 self.depth_buffers.push(depthrenderbuffer);
 
-                if 0 != osvr_sys::osvrRenderManagerRegisterRenderBufferOpenGL(registerBufferState, rb) {
+                if 0 != osvr_sys::osvrRenderManagerRegisterRenderBufferOpenGL(register_buffer_state, rb) {
                     panic!("Could not register render buffer {}.", i);
                 }
             }
 
-            if 0 != osvr_sys::osvrRenderManagerFinishRegisterRenderBuffers(self.render, registerBufferState, 0) {
+            if 0 != osvr_sys::osvrRenderManagerFinishRegisterRenderBuffers(self.render, register_buffer_state, 0) {
                 panic!("Could not start finish registering render buffers.");
             }
         }
@@ -164,42 +164,40 @@ impl RenderManager {
             panic!("Color buffers not registered when render_eyes() called. Did you forget to call register_buffers()?");
         }
         unsafe {
-            let mut renderInfoCollection: osvr_sys::OSVR_RenderInfoCollection = std::mem::zeroed();
-            if 0 != osvr_sys::osvrRenderManagerGetRenderInfoCollection(self.render, self.render_params, &mut renderInfoCollection) {
+            let mut render_info_collection: osvr_sys::OSVR_RenderInfoCollection = std::mem::zeroed();
+            if 0 != osvr_sys::osvrRenderManagerGetRenderInfoCollection(self.render, self.render_params, &mut render_info_collection) {
                 panic!("Could not get render info in the main loop.");
             }
 
-            let mut numRenderInfo: osvr_sys::OSVR_RenderInfoCount = 0 as usize;
-            osvr_sys::osvrRenderManagerGetNumRenderInfoInCollection(renderInfoCollection, &mut numRenderInfo);
+            let mut num_render_info: osvr_sys::OSVR_RenderInfoCount = 0 as usize;
+            osvr_sys::osvrRenderManagerGetNumRenderInfoInCollection(render_info_collection, &mut num_render_info);
 
-            for i in 0..numRenderInfo {
-                let mut renderInfo: osvr_sys::OSVR_RenderInfoOpenGL = std::mem::zeroed();
-                osvr_sys::osvrRenderManagerGetRenderInfoFromCollectionOpenGL(renderInfoCollection, i, &mut renderInfo);
+            for i in 0..num_render_info {
+                let mut render_info: osvr_sys::OSVR_RenderInfoOpenGL = std::mem::zeroed();
+                osvr_sys::osvrRenderManagerGetRenderInfoFromCollectionOpenGL(render_info_collection, i, &mut render_info);
 
                 // then draw your GL scene for this eye here!
-                (render_eye)(&renderInfo, self.frame_buffer, self.color_buffers[i].colorBufferName, self.depth_buffers[i]);
+                (render_eye)(&render_info, self.frame_buffer, self.color_buffers[i].colorBufferName, self.depth_buffers[i]);
             }
 
-            let mut presentState: osvr_sys::OSVR_RenderManagerPresentState = std::mem::zeroed();
-            if 0 != osvr_sys::osvrRenderManagerStartPresentRenderBuffers(&mut presentState) {
+            let mut present_state: osvr_sys::OSVR_RenderManagerPresentState = std::mem::zeroed();
+            if 0 != osvr_sys::osvrRenderManagerStartPresentRenderBuffers(&mut present_state) {
                 panic!("Could not start presenting render buffers.");
-                return;
             }
 
-            let fullView = osvr_sys::OSVR_ViewportDescription { left: 0.0, lower: 0.0, width: 1.0, height: 1.0};
-            for i in 0..numRenderInfo {
-                let mut renderInfo: osvr_sys::OSVR_RenderInfoOpenGL = std::mem::zeroed();
-                osvr_sys::osvrRenderManagerGetRenderInfoFromCollectionOpenGL(renderInfoCollection, i, &mut renderInfo);
+            let full_view = osvr_sys::OSVR_ViewportDescription { left: 0.0, lower: 0.0, width: 1.0, height: 1.0};
+            for i in 0..num_render_info {
+                let mut render_info: osvr_sys::OSVR_RenderInfoOpenGL = std::mem::zeroed();
+                osvr_sys::osvrRenderManagerGetRenderInfoFromCollectionOpenGL(render_info_collection, i, &mut render_info);
 
-                if 0 != osvr_sys::osvrRenderManagerPresentRenderBufferOpenGL(presentState, self.color_buffers[i], renderInfo, fullView) {
+                if 0 != osvr_sys::osvrRenderManagerPresentRenderBufferOpenGL(present_state, self.color_buffers[i], render_info, full_view) {
                     panic!("Could not present render buffer {}.", i);
-                    return;
                 }
             }
 
-            osvr_sys::osvrRenderManagerReleaseRenderInfoCollection(renderInfoCollection);
+            osvr_sys::osvrRenderManagerReleaseRenderInfoCollection(render_info_collection);
 
-            if 0 != osvr_sys::osvrRenderManagerFinishPresentRenderBuffers(self.render, presentState, self.render_params, 0) {
+            if 0 != osvr_sys::osvrRenderManagerFinishPresentRenderBuffers(self.render, present_state, self.render_params, 0) {
                 panic!("Could not finish presenting render buffers.");
             }
         }
@@ -269,13 +267,12 @@ pub mod glutil {
             gl::FramebufferRenderbuffer(gl::FRAMEBUFFER, gl::DEPTH_ATTACHMENT, gl::RENDERBUFFER, depth_buffer);
 
             // Set the list of draw buffers.
-            let drawBuffer: osvr_sys::GLenum = gl::COLOR_ATTACHMENT0;
-            gl::DrawBuffers(1, &drawBuffer); // "1" is the size of DrawBuffers
+            let draw_buffer: osvr_sys::GLenum = gl::COLOR_ATTACHMENT0;
+            gl::DrawBuffers(1, &draw_buffer); // "1" is the size of DrawBuffers
 
             // Always check that our framebuffer is ok
             if gl::CheckFramebufferStatus(gl::FRAMEBUFFER) != gl::FRAMEBUFFER_COMPLETE {
                 panic!("RenderView: Incomplete Framebuffer");
-                return;
             }
         }
     }
@@ -317,6 +314,14 @@ pub mod glutil {
             let mut model_view: [f64; 16] = ::std::mem::uninitialized();
             osvr_sys::OSVR_PoseState_to_OpenGL(&mut model_view[0] as *mut f64, render_info.pose);
             model_view
+        }
+    }
+
+    /** Will return null pointer until you have created a RenderManager */
+    pub fn get_proc_address(name: &str) -> *const ::std::os::raw::c_void
+    {
+        unsafe {
+            osvr_sys::SDL_GL_GetProcAddress(::std::ffi::CString::new(name).unwrap().as_ptr())
         }
     }
 }

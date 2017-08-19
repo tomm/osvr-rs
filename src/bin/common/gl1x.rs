@@ -1,8 +1,7 @@
 // wrap some GL 1.x stuff that this demo needs, but gl-rs doesn't wrap
+#![allow(non_snake_case, non_camel_case_types, non_upper_case_globals)]
+extern crate osvr;
 use std;
-use std::mem;
-use std::ffi::CString;
-use osvr_sys;
 
 pub const PROJECTION: u32 = 0x1701;
 pub const MODELVIEW: u32 = 0x1700;
@@ -10,17 +9,17 @@ pub const POLYGON: u32 = 0x0009;
 
 pub fn init() {
     unsafe {
-        glBegin = Some(std::mem::transmute(osvr_sys::SDL_GL_GetProcAddress(CString::new("glBegin").unwrap().as_ptr())));
-        glEnd = Some(std::mem::transmute(osvr_sys::SDL_GL_GetProcAddress(CString::new("glEnd").unwrap().as_ptr())));
-        glPushMatrix = Some(std::mem::transmute(osvr_sys::SDL_GL_GetProcAddress(CString::new("glPushMatrix").unwrap().as_ptr())));
-        glPopMatrix = Some(std::mem::transmute(osvr_sys::SDL_GL_GetProcAddress(CString::new("glPopMatrix").unwrap().as_ptr())));
-        glLoadIdentity = Some(std::mem::transmute(osvr_sys::SDL_GL_GetProcAddress(CString::new("glLoadIdentity").unwrap().as_ptr())));
-        glMultMatrixd = Some(std::mem::transmute(osvr_sys::SDL_GL_GetProcAddress(CString::new("glMultMatrixd").unwrap().as_ptr())));
-        glMatrixMode = Some(std::mem::transmute(osvr_sys::SDL_GL_GetProcAddress(CString::new("glMatrixMode").unwrap().as_ptr())));
-        glVertex3f = Some(std::mem::transmute(osvr_sys::SDL_GL_GetProcAddress(CString::new("glVertex3f").unwrap().as_ptr())));
-        glNormal3f = Some(std::mem::transmute(osvr_sys::SDL_GL_GetProcAddress(CString::new("glNormal3f").unwrap().as_ptr())));
-        glColor3fv = Some(std::mem::transmute(osvr_sys::SDL_GL_GetProcAddress(CString::new("glColor3fv").unwrap().as_ptr())));
-        glScaled = Some(std::mem::transmute(osvr_sys::SDL_GL_GetProcAddress(CString::new("glScaled").unwrap().as_ptr())));
+        glBegin = Some(std::mem::transmute(osvr::glutil::get_proc_address("glBegin")));
+        glEnd = Some(std::mem::transmute(osvr::glutil::get_proc_address("glEnd")));
+        glPushMatrix = Some(std::mem::transmute(osvr::glutil::get_proc_address("glPushMatrix")));
+        glPopMatrix = Some(std::mem::transmute(osvr::glutil::get_proc_address("glPopMatrix")));
+        glLoadIdentity = Some(std::mem::transmute(osvr::glutil::get_proc_address("glLoadIdentity")));
+        glMultMatrixd = Some(std::mem::transmute(osvr::glutil::get_proc_address("glMultMatrixd")));
+        glMatrixMode = Some(std::mem::transmute(osvr::glutil::get_proc_address("glMatrixMode")));
+        glVertex3f = Some(std::mem::transmute(osvr::glutil::get_proc_address("glVertex3f")));
+        glNormal3f = Some(std::mem::transmute(osvr::glutil::get_proc_address("glNormal3f")));
+        glColor3fv = Some(std::mem::transmute(osvr::glutil::get_proc_address("glColor3fv")));
+        glScaled = Some(std::mem::transmute(osvr::glutil::get_proc_address("glScaled")));
     }
 }
 

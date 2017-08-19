@@ -8,6 +8,6 @@ repository = "https://github.com/tomm/osvr-rs.git"
 
 [dependencies]
 #osvr-sys = { path = "../osvr-sys-rs" }
-osvr-sys = "0.1.0"
+osvr-sys = "0.1.1"
 gl = "0.6.3"
 sdl2 = "0.27"

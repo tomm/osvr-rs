@@ -1,11 +1,5 @@
-extern crate osvr_sys;
 extern crate gl;
-extern crate sdl2;
 extern crate osvr;
-use std::ffi::CString;
-use std::ptr;
-use std::mem;
-use std::vec::Vec;
 pub mod common;
 use common::gl1x;
 use common::cube;
@@ -15,10 +9,10 @@ fn main() {
 
     let context = osvr::Context::new("Rust OSVR example");
 
-    let leftButton1 = osvr::Interface::new(&context, "/controller/left/1");
-    leftButton1.register_button_callback(myButtonCallback, &mut quit);
-    let rightButton1 = osvr::Interface::new(&context, "/controller/right/1");
-    rightButton1.register_button_callback(myButtonCallback, &mut quit);
+    let left_button_1 = osvr::Interface::new(&context, "/controller/left/1");
+    left_button_1.register_button_callback(my_button_callback, &mut quit);
+    let right_button_1 = osvr::Interface::new(&context, "/controller/right/1");
+    right_button_1.register_button_callback(my_button_callback, &mut quit);
     
     let mut render = osvr::RenderManager::new(&context).unwrap();
 
@@ -64,7 +58,7 @@ fn main() {
     }
 }
 
-extern "C" fn myButtonCallback(userdata: &mut bool, timestamp: &osvr::TimeValue, report: &osvr::ButtonReport)
+extern "C" fn my_button_callback(userdata: &mut bool, timestamp: &osvr::TimeValue, report: &osvr::ButtonReport)
 {
     println!("Button state: {}", report.state());
     println!("Time {} s, {} us", timestamp.seconds(), timestamp.microseconds());

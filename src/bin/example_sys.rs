@@ -5,64 +5,9 @@ use std::ffi::CString;
 use std::ptr;
 use std::mem;
 use std::vec::Vec;
-
-mod gl1x {
-    // wrap some GL 1.x stuff that this demo needs, but gl-rs doesn't wrap
-    use std;
-    use std::mem;
-    use std::ffi::CString;
-    use osvr_sys;
-
-    pub const PROJECTION: u32 = 0x1701;
-    pub const MODELVIEW: u32 = 0x1700;
-    pub const POLYGON: u32 = 0x0009;
-
-    pub fn init() {
-        unsafe {
-            glBegin = Some(std::mem::transmute(osvr_sys::SDL_GL_GetProcAddress(CString::new("glBegin").unwrap().as_ptr())));
-            glEnd = Some(std::mem::transmute(osvr_sys::SDL_GL_GetProcAddress(CString::new("glEnd").unwrap().as_ptr())));
-            glPushMatrix = Some(std::mem::transmute(osvr_sys::SDL_GL_GetProcAddress(CString::new("glPushMatrix").unwrap().as_ptr())));
-            glPopMatrix = Some(std::mem::transmute(osvr_sys::SDL_GL_GetProcAddress(CString::new("glPopMatrix").unwrap().as_ptr())));
-            glLoadIdentity = Some(std::mem::transmute(osvr_sys::SDL_GL_GetProcAddress(CString::new("glLoadIdentity").unwrap().as_ptr())));
-            glMultMatrixd = Some(std::mem::transmute(osvr_sys::SDL_GL_GetProcAddress(CString::new("glMultMatrixd").unwrap().as_ptr())));
-            glMatrixMode = Some(std::mem::transmute(osvr_sys::SDL_GL_GetProcAddress(CString::new("glMatrixMode").unwrap().as_ptr())));
-            glVertex3f = Some(std::mem::transmute(osvr_sys::SDL_GL_GetProcAddress(CString::new("glVertex3f").unwrap().as_ptr())));
-            glNormal3f = Some(std::mem::transmute(osvr_sys::SDL_GL_GetProcAddress(CString::new("glNormal3f").unwrap().as_ptr())));
-            glColor3fv = Some(std::mem::transmute(osvr_sys::SDL_GL_GetProcAddress(CString::new("glColor3fv").unwrap().as_ptr())));
-            glScaled = Some(std::mem::transmute(osvr_sys::SDL_GL_GetProcAddress(CString::new("glScaled").unwrap().as_ptr())));
-        }
-    }
-
-    pub fn LoadIdentity() { unsafe { (glLoadIdentity.unwrap())() } }
-    pub fn Begin(mode: u32) { unsafe { (glBegin.unwrap())(mode) } }
-    pub fn End() { unsafe { (glEnd.unwrap())() } }
-    pub fn PushMatrix() { unsafe { (glPushMatrix.unwrap())() } }
-    pub fn PopMatrix() { unsafe { (glPopMatrix.unwrap())() } }
-    pub fn MultMatrixd(matrix: &[f64]) {
-        assert!(matrix.len() == 16);
-        unsafe { (glMultMatrixd.unwrap())(&matrix[0] as *const f64) }
-    }
-    pub fn MatrixMode(mode: u32) { unsafe { (glMatrixMode.unwrap())(mode) } }
-    pub fn Vertex3f(x: f32, y: f32, z: f32) { unsafe { (glVertex3f.unwrap())(x, y, z) } }
-    pub fn Normal3f(x: f32, y: f32, z: f32) { unsafe { (glNormal3f.unwrap())(x, y, z) } }
-    pub fn Color3fv(color: &[f32]) {
-        assert!(color.len() == 3);
-        unsafe { (glColor3fv.unwrap())(&color[0] as *const f32) }
-    }
-    pub fn Scaled(x: f64, y: f64, z: f64) { unsafe { (glScaled.unwrap())(x, y, z) } }
-
-    static mut glBegin: Option<extern "C" fn(mode: u32)> = None;
-    static mut glEnd: Option<extern "C" fn()> = None;
-    static mut glPushMatrix: Option<extern "C" fn()> = None;
-    static mut glPopMatrix: Option<extern "C" fn()> = None;
-    static mut glLoadIdentity: Option<extern "C" fn()> = None;
-    static mut glMultMatrixd: Option<extern "C" fn(matrix: *const f64)> = None;
-    static mut glMatrixMode: Option<extern "C" fn(mode: u32)> = None;
-    static mut glVertex3f: Option<extern "C" fn(x: f32, y: f32, z: f32)> = None;
-    static mut glNormal3f: Option<extern "C" fn(x: f32, y: f32, z: f32)> = None;
-    static mut glColor3fv: Option<extern "C" fn(color: *const f32)> = None;
-    static mut glScaled: Option<extern "C" fn(x: f64, y: f64, z: f64)> = None;
-}
+pub mod common;
+use common::gl1x;
+use common::cube;
 
 extern "C" fn myButtonCallback(userdata: *mut ::std::os::raw::c_void, timestamp: *const osvr_sys::OSVR_TimeValue, report: *const osvr_sys::OSVR_ButtonReport)
 {
@@ -319,83 +264,6 @@ fn renderView(renderInfo: &osvr_sys::OSVR_RenderInfoOpenGL, frameBuffer: osvr_sy
         // interface and handle the coordinate tranforms ourselves.
 
         // Draw a cube with a 5-meter radius as the room we are floating in.
-        draw_cube(5.0);
+        cube::draw_cube(5.0);
     }
-}
-
-static MATSPEC: [f32; 4] = [ 0.5, 0.5, 0.5, 0.0 ];
-static RED_COL: [f32; 3] = [ 1.0, 0.0, 0.0 ];
-static GRN_COL: [f32; 3] = [ 0.0, 1.0, 0.0 ];
-static BLU_COL: [f32; 3] = [ 0.0, 0.0, 1.0 ];
-static YEL_COL: [f32; 3] = [ 1.0, 1.0, 0.0 ];
-static LIGHTBLU_COL: [f32; 3] = [ 0.0, 1.0, 1.0 ];
-static PUR_COL: [f32; 3] = [ 1.0, 0.0, 1.0 ];
-
-fn draw_cube(radius: f64)
-{
-    gl1x::PushMatrix();
-    gl1x::Scaled(radius, radius, radius);
-    //gl::Materialfv(GL_FRONT, GL_SPECULAR, MATSPEC);
-    //gl::Materialf(GL_FRONT, GL_SHININESS, 64.0);
-    gl1x::Begin(gl1x::POLYGON);
-    gl1x::Color3fv(&LIGHTBLU_COL);
-    //gl::Materialfv(GL_FRONT_AND_BACK, GL_AMBIENT, LIGHTBLU_COL);
-    //gl::Materialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, LIGHTBLU_COL);
-    gl1x::Normal3f(0.0, 0.0, -1.0);
-    gl1x::Vertex3f(1.0, 1.0, -1.0);
-    gl1x::Vertex3f(1.0, -1.0, -1.0);
-    gl1x::Vertex3f(-1.0, -1.0, -1.0);
-    gl1x::Vertex3f(-1.0, 1.0, -1.0);
-    gl1x::End();
-    gl1x::Begin(gl1x::POLYGON);
-    gl1x::Color3fv(&BLU_COL);
-    //gl::Materialfv(GL_FRONT_AND_BACK, GL_AMBIENT, BLU_COL);
-    //gl::Materialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, BLU_COL);
-    gl1x::Normal3f(0.0, 0.0, 1.0);
-    gl1x::Vertex3f(-1.0, 1.0, 1.0);
-    gl1x::Vertex3f(-1.0, -1.0, 1.0);
-    gl1x::Vertex3f(1.0, -1.0, 1.0);
-    gl1x::Vertex3f(1.0, 1.0, 1.0);
-    gl1x::End();
-    gl1x::Begin(gl1x::POLYGON);
-    gl1x::Color3fv(&YEL_COL);
-    //gl::Materialfv(GL_FRONT_AND_BACK, GL_AMBIENT, YEL_COL);
-    //gl::Materialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, YEL_COL);
-    gl1x::Normal3f(0.0, -1.0, 0.0);
-    gl1x::Vertex3f(1.0, -1.0, 1.0);
-    gl1x::Vertex3f(-1.0, -1.0, 1.0);
-    gl1x::Vertex3f(-1.0, -1.0, -1.0);
-    gl1x::Vertex3f(1.0, -1.0, -1.0);
-    gl1x::End();
-    gl1x::Begin(gl1x::POLYGON);
-    gl1x::Color3fv(&GRN_COL);
-    //gl::Materialfv(GL_FRONT_AND_BACK, GL_AMBIENT, GRN_COL);
-    //gl::Materialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, GRN_COL);
-    gl1x::Normal3f(0.0, 1.0, 0.0);
-    gl1x::Vertex3f(1.0, 1.0, 1.0);
-    gl1x::Vertex3f(1.0, 1.0, -1.0);
-    gl1x::Vertex3f(-1.0, 1.0, -1.0);
-    gl1x::Vertex3f(-1.0, 1.0, 1.0);
-    gl1x::End();
-    gl1x::Begin(gl1x::POLYGON);
-    gl1x::Color3fv(&PUR_COL);
-    //gl::Materialfv(GL_FRONT_AND_BACK, GL_AMBIENT, PUR_COL);
-    //gl::Materialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, PUR_COL);
-    gl1x::Normal3f(-1.0, 0.0, 0.0);
-    gl1x::Vertex3f(-1.0, 1.0, 1.0);
-    gl1x::Vertex3f(-1.0, 1.0, -1.0);
-    gl1x::Vertex3f(-1.0, -1.0, -1.0);
-    gl1x::Vertex3f(-1.0, -1.0, 1.0);
-    gl1x::End();
-    gl1x::Begin(gl1x::POLYGON);
-    gl1x::Color3fv(&RED_COL);
-    //gl::Materialfv(GL_FRONT_AND_BACK, GL_AMBIENT, RED_COL);
-    //gl::Materialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, RED_COL);
-    gl1x::Normal3f(1.0, 0.0, 0.0);
-    gl1x::Vertex3f(1.0, -1.0, 1.0);
-    gl1x::Vertex3f(1.0, -1.0, -1.0);
-    gl1x::Vertex3f(1.0, 1.0, -1.0);
-    gl1x::Vertex3f(1.0, 1.0, 1.0);
-    gl1x::End();
-    gl1x::PopMatrix();
 }
